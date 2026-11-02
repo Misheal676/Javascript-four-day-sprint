@@ -672,10 +672,6 @@ taskForm.addEventListener("submit", event => {
 
 // Typing again removes the error
 titleInput.addEventListener("input", clearTitleError);
-validateTaskInput({ title: "Write tests", priority: "high" }, uiTasks).ok;    // false
-validateTaskInput({ title: " write tests ", priority: "high" }, uiTasks).ok;  // false
-validateTaskInput({ title: "Plan sprint", priority: "high" }, uiTasks).ok;    // true
-validateTaskInput({ title: "x".repeat(81), priority: "high" }, uiTasks).errors.title;
 // Start the app (must stay LAST)
    searchInput.addEventListener("input", render);
    render();
