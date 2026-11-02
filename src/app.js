@@ -515,3 +515,167 @@ console.log(uiTasks.length);                          // still 5
 console.log(filterByQuery(uiTasks, "WRITE").length);  // 1
 console.log(filterByQuery(uiTasks, "zzz").length);    // 0
 console.log(uiTasks.length);                          // 5
+
+// ===== DAY 3 - Block 2 =====
+
+var currentStatus = "all";
+
+// Logic Challenge 10: pure, composes search + status. Never changes tasks.
+function getVisibleTasks(tasks, query, status) {
+  const byQuery = filterByQuery(tasks, query);
+  if (status === "open") return byQuery.filter(task => !task.completed);
+  if (status === "completed") return byQuery.filter(task => task.completed);
+  return byQuery;
+}
+
+function render() {
+  renderTasks(getVisibleTasks(uiTasks, searchInput.value, currentStatus));
+}
+
+// Pure state updates: each returns a NEW array
+function toggleTask(tasks, id) {
+  return tasks.map(task =>
+    task.id === id ? { ...task, completed: !task.completed } : task
+  );
+}
+
+function deleteTask(tasks, id) {
+  return tasks.filter(task => task.id !== id);
+}
+
+function addTask(tasks, title, priority) {
+  const nextId = tasks.reduce((max, task) => Math.max(max, task.id), 0) + 1;
+  return [...tasks, { id: nextId, title, completed: false, priority }];
+}
+
+// Steps 38-39: ONE click listener on the list (event delegation)
+taskList.addEventListener("click", event => {
+  const control = event.target.closest("[data-action]");
+  if (!control) return;                       // ignore unrelated clicks
+
+  const id = Number(control.dataset.taskId);  // dataset values are strings
+  if (!Number.isInteger(id)) return;
+
+  if (control.dataset.action === "toggle") uiTasks = toggleTask(uiTasks, id);
+  if (control.dataset.action === "delete") uiTasks = deleteTask(uiTasks, id);
+  render();
+});
+
+// Step 37: form submit
+const taskForm = document.querySelector("#task-form");
+const titleInput = document.querySelector("#task-title");
+const statusEl = document.querySelector("#status");
+
+taskForm.addEventListener("submit", event => {
+  event.preventDefault();                     // stop the page reload
+  const data = new FormData(taskForm);
+  const title = String(data.get("title")).trim();
+  const priority = String(data.get("priority"));
+
+  if (title === "") {                         // basic check; full validation is Block 3
+    statusEl.textContent = "Please enter a task title.";
+    titleInput.focus();
+    return;
+  }
+
+  uiTasks = addTask(uiTasks, title, priority);
+  taskForm.reset();
+  titleInput.focus();
+  statusEl.textContent = `Added "${title}".`;
+  render();
+});
+
+// Filter buttons
+document.querySelector("#filters").addEventListener("click", event => {
+  const button = event.target.closest("button[data-filter]");
+  if (!button) return;
+  currentStatus = button.dataset.filter;
+  document.querySelectorAll("#filters button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b === button))
+  );
+  render();
+});
+// Start the app (must stay LAST)
+searchInput.addEventListener("input", render);
+render();
+currentStatus
+const before = JSON.stringify(uiTasks);
+getVisibleTasks(uiTasks, "write", "open");
+console.log(JSON.stringify(uiTasks) === before);
+
+// ===== DAY 3 - Block 3 =====
+
+const MAX_TITLE_LENGTH = 80;
+const VALID_PRIORITIES = ["high", "medium", "low"];
+const titleError = document.querySelector("#title-error");
+
+// Same rule for both sides of the duplicate check
+function normalizeTitle(title) {
+  return title.trim().toLowerCase();
+}
+
+// Step 42: pure. Returns the cleaned value or a set of errors.
+function validateTaskInput(input, existingTasks) {
+  const errors = {};
+  const title = String(input.title ?? "").trim();
+  const priority = String(input.priority ?? "");
+
+  if (title.length === 0) {
+    errors.title = "Please enter a task title.";
+  } else if (title.length > MAX_TITLE_LENGTH) {
+    errors.title = `Title must be ${MAX_TITLE_LENGTH} characters or fewer.`;
+  } else if (existingTasks.some(t => normalizeTitle(t.title) === normalizeTitle(title))) {
+    errors.title = "A task with this title already exists."; // Challenge 11
+  }
+
+  if (!VALID_PRIORITIES.includes(priority)) {
+    errors.priority = "Please choose a valid priority.";
+  }
+
+  const ok = Object.keys(errors).length === 0;
+  return { ok, value: ok ? { title, priority } : null, errors };
+}
+
+function showTitleError(message) {
+  titleError.textContent = message;
+  titleInput.setAttribute("aria-invalid", "true");
+}
+
+function clearTitleError() {
+  titleError.textContent = "";
+  titleInput.removeAttribute("aria-invalid");
+}
+
+// Steps 41 and 43: submit
+taskForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const data = new FormData(taskForm);
+  const result = validateTaskInput(
+    { title: data.get("title"), priority: data.get("priority") },
+    uiTasks
+  );
+
+  if (!result.ok) {
+    statusEl.textContent = "";
+    showTitleError(result.errors.title ?? result.errors.priority);
+    titleInput.focus();          // typed value stays in the box
+    return;
+  }
+
+  uiTasks = addTask(uiTasks, result.value.title, result.value.priority);
+  clearTitleError();
+  taskForm.reset();
+  titleInput.focus();
+  statusEl.textContent = `Added "${result.value.title}".`;
+  render();
+});
+
+// Typing again removes the error
+titleInput.addEventListener("input", clearTitleError);
+validateTaskInput({ title: "Write tests", priority: "high" }, uiTasks).ok;    // false
+validateTaskInput({ title: " write tests ", priority: "high" }, uiTasks).ok;  // false
+validateTaskInput({ title: "Plan sprint", priority: "high" }, uiTasks).ok;    // true
+validateTaskInput({ title: "x".repeat(81), priority: "high" }, uiTasks).errors.title;
+// Start the app (must stay LAST)
+   searchInput.addEventListener("input", render);
+   render();

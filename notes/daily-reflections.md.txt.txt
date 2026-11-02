@@ -92,3 +92,46 @@ mutated. An unknown id (99) returns all five tasks unchanged.
 - open is total minus completed, so total = completed + open always holds.
 - by Priority uses reduce with an object accumulator; the counts sum to
   the total, which I checked in the console.
+## Day 3 - Block 1
+- Search returns a new array because ...
+- I trim the query because ...
+- Two empty-state messages because ...
+- Bug: a single / caused a Syntax Error. Fixed by ...
+- Bug: old index.html had no #task-list. Fixed by ...
+## Day 3 - Block 2
+
+*Why does one click listener on the list still work for tasks added later?*
+The listener is attached to the <ul>, which always exists, not to each button.
+When I click a button inside it, the click "bubbles up" to the list, and
+event.target.closest("[data-action]") finds which control was clicked.
+New tasks are created with the same data-action attributes, so they work
+automatically without adding new listeners.
+
+*Why use Number(...) on dataset.taskId?*
+Values in dataset are always strings, so "3" is not equal to 3.
+My task ids are numbers and I compare with ===, so without converting,
+toggle and delete would never find a match. I also check
+Number.isInteger(id) so a bad value is ignored.
+
+*Why do the handlers change uiTasks while render() only draws it?*
+Keeping one source of truth means the data is the only thing that
+changes, and the page is always a picture of that data. Handlers update
+state, then call render(). This avoids the page and the data getting
+out of sync, and makes bugs easier to find: if the page is wrong,
+check the data first.
+
+*How does Challenge 10 prove filters don't change the data?*
+getVisibleTasks uses filter, which returns a new array. I compared
+JSON.stringify(uiTasks) before and after calling it, and they were equal.
+
+*Bugs I hit today*
+- let currentStatus was used by render() before the line that created
+  it ran, causing "Cannot access before initialization". Fixed by declaring
+  it before any render() call (and keeping the startup lines last).
+- Typed / instead of // and forgot backticks on template strings,
+  causing SyntaxErrors.
+- Old index.html had no #task-list, so my own null check threw an error.
+
+*Still to improve*
+The "Please enter a task title." message stays after a successful add.
+I will clear it in Block 3 when I add full validation.
