@@ -1,2 +1,4 @@
 # Javascript-four-day-sprint.
-Javascript 
+
+JavaScript-four-day-sprint
+

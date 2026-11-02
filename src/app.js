@@ -430,3 +430,88 @@ console.log(stats);
 console.log(stats.total === stats.completed + stats.open);
 console.log(Object.values(stats.byPriority).reduce((a, b) => a + b, 0) === stats.total);
 console.log(getTaskStats([]));
+
+// ===== DAY 3 - Block 1 =====
+
+// Step 34: select elements and check for null
+const taskList = document.querySelector("#task-list");
+const searchInput = document.querySelector("#search");
+
+if (!taskList || !searchInput) {
+  throw new Error("Required elements are missing from index.html");
+}
+
+// Sample data (name it uiTasks so it doesn't clash with Day 2's sampleTasks)
+let uiTasks = [
+  { id: 1, title: "Read brief", completed: false, priority: "high" },
+  { id: 2, title: "Draft outline", completed: true, priority: "medium" },
+  { id: 3, title: "Write tests", completed: false, priority: "high" },
+  { id: 4, title: "Review pull request", completed: false, priority: "low" },
+  { id: 5, title: "Update README", completed: true, priority: "medium" }
+];
+
+// Logic Challenge 9: pure case-insensitive search
+function filterByQuery(taskArray, query) {
+  const normalized = query.trim().toLowerCase();
+  if (normalized === "") return taskArray;
+  return taskArray.filter(task => task.title.toLowerCase().includes(normalized));
+}
+
+// Steps 35-36: build one list item with createElement + textContent
+function createTaskItem(task) {
+  const li = document.createElement("li");
+  li.dataset.taskId = task.id;
+  if (task.completed) li.classList.add("completed");
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = task.completed;
+  checkbox.id = `task-${task.id}`;
+  checkbox.dataset.action = "toggle";
+  checkbox.dataset.taskId = task.id;
+
+  const label = document.createElement("label");
+  label.htmlFor = checkbox.id;
+  label.textContent = task.title;
+
+  const badge = document.createElement("span");
+  badge.className = `priority priority-${task.priority}`;
+  badge.textContent = task.priority;
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.dataset.action = "delete";
+  deleteBtn.dataset.taskId = task.id;
+  deleteBtn.textContent = "Delete";
+
+  li.append(checkbox, label, badge, deleteBtn);
+  return li;
+}
+
+function renderTasks(visibleTasks) {
+  taskList.replaceChildren();
+
+  if (visibleTasks.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "empty-state";
+    empty.textContent = uiTasks.length === 0 ? "No tasks yet." : "No tasks match your search.";
+    taskList.append(empty);
+    return;
+  }
+
+  visibleTasks.forEach(task => taskList.append(createTaskItem(task)));
+}
+
+function render() {
+  renderTasks(filterByQuery(uiTasks, searchInput.value));
+}
+
+searchInput.addEventListener("input", render);
+render();
+console.log(filterByQuery(uiTasks, "").length);       // 5
+console.log(filterByQuery(uiTasks, "WRITE").length);  // 1
+console.log(filterByQuery(uiTasks, "zzz").length);    // 0
+console.log(uiTasks.length);                          // still 5
+console.log(filterByQuery(uiTasks, "WRITE").length);  // 1
+console.log(filterByQuery(uiTasks, "zzz").length);    // 0
+console.log(uiTasks.length);                          // 5
