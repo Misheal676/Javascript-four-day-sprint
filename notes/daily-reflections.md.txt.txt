@@ -135,3 +135,55 @@ JSON.stringify(uiTasks) before and after calling it, and they were equal.
 *Still to improve*
 The "Please enter a task title." message stays after a successful add.
 I will clear it in Block 3 when I add full validation.
+## Day 3 - Block 4: localStorage persistence
+
+*What I built*
+saveTasks converts the task list to text with JSON.stringify and stores
+it under the key jsSprint.tasks.v1. loadTasks reads it back at startup.
+persist() runs after every toggle or delete, and the submit handler saves
+after every add.
+
+*Why is the key versioned (.v1)?*
+If I change the shape of a task later, I can use .v2 and old saved data
+will not be read by code that expects the new shape.
+
+*Why use JSON.stringify and JSON.parse?*
+localStorage only stores strings. JSON turns the array of objects into text
+and back again.
+
+*Why validate the parsed data, not only catch JSON.parse errors?*
+"not-json" makes JSON.parse throw, but [{"id":"x"}] parses fine and
+would still break my app because the id is not a number and fields are
+missing. isValidStoredTask checks every field of every task.
+
+*Why wrap setItem in try/catch?*
+Storage can be full or disabled, so saving can fail. The app shows a message
+instead of crashing.
+
+*Recovery rule (Challenge 12)*
+- Nothing saved yet: use the sample tasks.
+- Unreadable or wrongly shaped data: start with an empty list, show a
+  notice ("Saved data could not be read, so the list was reset."), and log
+  the error.
+- The bad data is overwritten the next time a save succeeds.
+
+*How I tested it*
+- Added a task, refreshed, and it stayed.
+- Checked a task and deleted a task, refreshed, and both changes stayed.
+- Ran localStorage.setItem("jsSprint.tasks.v1", "not-json") and refreshed:
+  empty list, notice, and the form still worked.
+- Ran the same with '[{"id":"x"}]': same recovery through the shape check.
+
+*Bugs I hit and how I fixed them*
+- The old submit handler was still in the file, so it added tasks without
+  saving them. Result: getItem printed null. I replaced app.js with one
+  clean file so only one handler existed.
+- A single / at the start of a pasted line caused "Invalid regular
+  expression: missing /".
+- An extra ) in a Console command caused a SyntaxError when I typed it
+  by hand.
+- let currentStatus was used by render() before it was created.
+
+*Still to improve*
+Sample tasks are only seed data. Later I could add a reset button and clear
+the "Added..." message after a few seconds.

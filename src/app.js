@@ -1,448 +1,23 @@
-const itemName = "Notebook";
-const price = 12.5;
-let quantity = 3;
+// ===== Focus Board: Day 3 (Blocks 1-4) =====
 
-console.log(typeof itemName);
-console.log(typeof price);
-console.log(typeof true);
-console.log(typeof undefined);
-console.log(typeof null);
-
-quantity = 4;
-console.log("Quantity is now", quantity);
-
-const subtotal = price * quantity;
-const tax = subtotal * 0.08;
-const total = subtotal + tax;
-console.log(`${itemName}: $${total.toFixed(2)}`);
-
-const input = "42";
-const converted = Number(input);
-console.log(Number.isFinite(converted));
-console.log(Number.isFinite(Number("abc")));
-
-// Logic challenge 1: minutes to hours
-const minutes = 137;
-const hours = Math.floor(minutes / 60);
-const remaining = minutes % 60;
-console.log(`${hours} hours and ${remaining} minutes`);
-
-const hours2 = (minutes - (minutes % 60)) / 60;
-console.log(`${hours2} hours and ${remaining} minutes`);
-
-
-
-function getDiscountedTotal(total, member) {
-  if (!Number.isFinite(total) || total < 0) return null;
-  if (member && total >= 50) return total * 0.9;
-  return total;
-}
-console.log(getDiscountedTotal(49.99, true));   // member, just under 50
-console.log(getDiscountedTotal(50, true));      // member, exactly 50
-console.log(getDiscountedTotal(80, false));     // non-member
-console.log(getDiscountedTotal(80, true));      // member
-console.log(getDiscountedTotal(-5, true));      // invalid
-function gradeLabel(score) {
-  // A: 90+, B: 80-89, C: 70-79, D: 60-69, F: below 60
-  // return "Invalid" if score is below 0 or above 100
-}
-
-function gradeLabel(score) {
-  if (score < 0 || score > 100) return "Invalid";
-  if (score >= 90) return "A";
-  if (score >= 80) return "B";
-  if (score >= 70) return "C";
-  if (score >= 60) return "D";
-  return "F";
-}
-
-console.log(gradeLabel(89));   // B
-console.log(gradeLabel(90));   // A
-console.log(gradeLabel(0));    // F
-console.log(gradeLabel(100));  // A
-console.log(gradeLabel(-1));   // Invalid
-console.log(gradeLabel(101));  // Invalid
-
-// ===== Block 3 =====
-const prices = [5, 12, 25, 8, 30];
-
-function getTotal(list) {
-  if (list.length === 0) return 0;
-  let sum = 0;
-  for (const price of list) {
-    sum += price;
-  }
-  return sum;
-}
-
-function countAbove(list, limit) {
-  let count = 0;
-  for (const price of list) {
-    if (price > limit) count++;
-  }
-  return count;
-}
-
-console.log(getTotal(prices));        // 80
-console.log(countAbove(prices, 20));  // 2
-console.log(getTotal([]));            // 0
-const reduceTotal = prices.reduce((sum, item) => sum + item, 0);
-console.log(reduceTotal); // 80
-function fizzBuzz(limit) {
-  const results = [];
-  for (let i = 1; i <= limit; i++) {
-    if (i % 3 === 0 && i % 5 === 0) {
-      results.push("FizzBuzz");
-    } else if (i % 3 === 0) {
-      results.push("Fizz");
-    } else if (i % 5 === 0) {
-      results.push("Buzz");
-    } else {
-      results.push(i);
-    }
-  }
-  return results;
-}
-
-console.log(fizzBuzz(15));
-console.log(fizzBuzz(16));
-
-// ===== Block 4 =====
-function calculateLineTotal(price, quantity) {
-  if (!Number.isFinite(price) || !Number.isInteger(quantity) || price < 0 || quantity < 0) {
-    throw new Error("Price and quantity must be valid non-negative numbers.");
-  }
-  return price * quantity;
-}
-
-function calculateTax(amount) {
-  return amount * 0.08;
-}
-
-function formatMoney(amount) {
-  return `$${amount.toFixed(2)}`;
-}
-
-console.log(formatMoney(calculateLineTotal(12.5, 3)));  // $37.50
-console.log(formatMoney(calculateTax(37.5)));           // $3.00
-
-function printReceipt(items) {
-  let subtotal = 0;
-  for (const item of items) {
-    const lineTotal = calculateLineTotal(item.price, item.quantity);
-    subtotal += lineTotal;
-    console.log(`${item.name} x${item.quantity}: ${formatMoney(lineTotal)}`);
-  }
-  const tax = calculateTax(subtotal);
-  console.log(`Subtotal: ${formatMoney(subtotal)}`);
-  console.log(`Tax: ${formatMoney(tax)}`);
-  console.log(`Total: ${formatMoney(subtotal + tax)}`);
-}
-
-printReceipt([
-  { name: "Notebook", price: 12.5, quantity: 3 },
-  { name: "Pen", price: 1.2, quantity: 10 }
-]);
-
-try {
-  calculateLineTotal("abc", 2);
-  console.log("FAIL: no error thrown");
-} catch (error) {
-  console.log("PASS: invalid input rejected:", error.message);
-}
-console.log(calculateLineTotal(5, 0));            // 0 (zero quantity)
-console.log(calculateLineTotal(0.1, 3));          // about 0.3 (decimal price)
-console.log(formatMoney(calculateLineTotal(19.99, 2))); // $39.98
-console.log(formatMoney(0));                      // $0.00
-
-try {
-  calculateLineTotal(5, -1);
-  console.log("FAIL: no error thrown");
-} catch (error) {
-  console.log("PASS: negative quantity rejected");
-}
-function calculateDiscountedLineTotal(price, quantity) {
-  const lineTotal = calculateLineTotal(price, quantity);
-  return quantity > 5 ? lineTotal * 0.95 : lineTotal;
-}
-
-const line1 = calculateDiscountedLineTotal(10, 6);  // 60 -> 57
-const line2 = calculateDiscountedLineTotal(5, 2);   // 10, no discount
-const subtotalBeforeTax = line1 + line2;            // 67
-const taxAmount = calculateTax(subtotalBeforeTax);  // 5.36
-console.log("Subtotal before tax:", formatMoney(subtotalBeforeTax));
-console.log("Tax:", formatMoney(taxAmount));
-console.log("Total:", formatMoney(subtotalBeforeTax + taxAmount));
-
-// Proof that tax is calculated after the discount
-const wrongTax = calculateTax(70); // tax on the undiscounted 70
-console.log(taxAmount < wrongTax ? "PASS: tax uses discounted subtotal" : "FAIL")
-
-// ===== DAY 2 - Block 1 =====
-const sampleTasks = [
-  { id: 1, title: "Read brief", completed: false, priority: "high" },
-  { id: 2, title: "Draft outline", completed: true, priority: "medium" },
-  { id: 3, title: "Write functions", completed: false, priority: "high" },
-  { id: 4, title: "Test edge cases", completed: false, priority: "low" },
-  { id: 5, title: "Push to GitHub", completed: false, priority: "medium" }
-];
-
-console.log(sampleTasks[0].title);   // Read brief
-console.table(sampleTasks);
-
-function addTask(tasks, title, priority = "normal") {
-  const cleanTitle = title.trim();
-  if (!cleanTitle) return tasks;   // blank title: return the list unchanged
-  const newId = tasks.length === 0 ? 1 : Math.max(...tasks.map(t => t.id)) + 1;
-  return [...tasks, { id: newId, title: cleanTitle, completed: false, priority: priority }];
-}
-
-function completeTask(tasks, id) {
-  return tasks.map(task => task.id === id ? { ...task, completed: true } : task);
-}
-
-function deleteTask(tasks, id) {
-  return tasks.filter(task => task.id !== id);
-}
-
-function renameTask(tasks, id, newTitle) {
-  const cleanTitle = newTitle.trim();
-  if (!cleanTitle) return tasks;
-  return tasks.map(task => task.id === id ? { ...task, title: cleanTitle } : task);
-}
-const afterAdd = addTask(sampleTasks, "  Review PR  ", "high");
-console.log(afterAdd.length, sampleTasks.length);          // 6 5
-console.log(addTask(sampleTasks, "   ").length);            // 5 (blank rejected)
-console.log(completeTask(sampleTasks, 1)[0].completed);     // true
-console.log(sampleTasks[0].completed);                      // false (original untouched)
-console.log(deleteTask(sampleTasks, 2).length);             // 4
-console.log(deleteTask(sampleTasks, 99).length);            // 5 (unknown id)
-console.log(renameTask(sampleTasks, 3, "Write tests")[2].title);
-
-function toggleTask(tasks, id) {
-  return tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
-}
-
-const toggled = toggleTask(sampleTasks, 2);
-console.log(toggled[1].completed);       // false
-console.log(sampleTasks[1].completed);   // true
-console.log(toggleTask(sampleTasks, 99)); // all five tasks, unchanged
-
-// ===== DAY 2 - Block 2 =====
-const openTitles = sampleTasks
-  .filter(task => !task.completed)
-  .map(task => task.title);
-console.log(openTitles);                      // 4 titles (all but "Draft outline")
-
-console.log(sampleTasks.find(task => task.id === 3));   // the "Write functions" task
-console.log(sampleTasks.some(task => task.priority === "high"));  // true
-console.log(sampleTasks.every(task => task.completed));            // false
-
-const countByPriority = sampleTasks.reduce((counts, task) => {
-  if (task.completed) {
-    counts[task.priority] = (counts[task.priority] || 0) + 1;
-  }
-  return counts;
-}, {});
-console.log(countByPriority);                 // { medium: 1 }
-
-const openTasks = sampleTasks.filter(task => !task.completed);
-const openTaskTitles = openTasks.map(task => task.title);
-console.log(openTaskTitles);   // same four titles
-function summarizePurchases(purchases) {
-  if (purchases.length === 0) {
-    return { total: 0, count: 0, average: 0, mostExpensive: null };
-  }
-  const total = purchases.reduce((sum, p) => sum + p.price, 0);
-  const count = purchases.length;
-  const average = total / count;
-  const mostExpensive = purchases.reduce((best, p) => p.price > best.price ? p : best);
-  return { total, count, average, mostExpensive };
-}
-
-console.log(summarizePurchases([]));
-console.log(summarizePurchases([{ name: "Pen", price: 2 }]));
-console.log(summarizePurchases([
-  { name: "Book", price: 15 },
-  { name: "Bag", price: 40 },
-  { name: "Lamp", price: 40 }
-]));
-
-// ===== DAY 2 - Block 3 =====
-class Task {
-  #completed = false;
-
-  constructor(id, title, priority = "normal") {
-    if (!title || !title.trim()) throw new Error("Title is required");
-    this.id = id;
-    this.title = title.trim();
-    this.priority = priority;
-  }
-
-  get completed() { return this.#completed; }
-  complete() { this.#completed = true; }
-  toggle() { this.#completed = !this.#completed; }
-  rename(newTitle) {
-    if (!newTitle || !newTitle.trim()) throw new Error("Title is required");
-    this.title = newTitle.trim();
-  }
-  describe() { return this.title + " (" + this.priority + ")"; }
-}
-
-const t = new Task(1, "Learn classes", "high");
-console.log(t.completed);    // false
-t.complete();
-console.log(t.completed);    // true
-console.log(t.describe());   // Learn classes (high)
-
-try {
-  new Task(2, "   ");
-} catch (error) {
-  console.log("PASS: blank title rejected");
-}
-
-class TaskList {
-  #tasks = [];
-
-  add(task) {
-    this.#tasks.push(task);
-  }
-
-  remove(id) {
-    this.#tasks = this.#tasks.filter(task => task.id !== id);
-  }
-
-  findById(id) {
-    return this.#tasks.find(task => task.id === id);
-  }
-
-  getOpenTasks() {
-    return this.#tasks.filter(task => !task.completed);
-  }
-}
-const list = new TaskList();
-list.add(new Task(1, "Read brief", "high"));
-list.add(new Task(2, "Draft outline"));
-list.findById(1).complete();
-console.log(list.getOpenTasks().length);   // 1
-list.remove(2);
-console.log(list.findById(2));             // undefined
-
-// Version 1: inheritance
-class Reminder extends Task {
-  constructor(id, title, priority, dueDate) {
-    super(id, title, priority);
-    this.dueDate = dueDate;
-  }
-
-  describe() {
-    return super.describe() + " - due " + this.dueDate;
-  }
-}
-
-const r = new Reminder(10, "Submit sprint", "high", "2026-11-02");
-console.log(r.describe());   // Submit sprint (high) - due 2026-11-02
-console.log(r.completed);    // false
-r.complete();
-console.log(r.completed);    // true
-
-// Version 2: composition
-const composedTask = new Task(11, "Call mentor", "medium");
-const withReminder = { task: composedTask, reminder: { dueDate: "2026-11-03" } };
-console.log(withReminder.task.describe() + " - due " + withReminder.reminder.dueDate);
-
-// ===== DAY 2 - Block 4 =====
-
-// Step 31: one named helper for the repeated title check
-function validateTitle(title) {
-  if (typeof title !== "string" || !title.trim()) {
-    throw new Error("Title is required");
-  }
-  return title.trim();
-}
-
-// Step 29: storage-shaped operations. Task owns behaviour, the repository owns the collection.
-class TaskRepository {
-  #tasks = [];
-  #nextId = 1;
-
-  create(title, priority = "normal") {
-    const task = new Task(this.#nextId++, validateTitle(title), priority);
-    this.#tasks.push(task);
-    return task;
-  }
-
-  getAll() { return [...this.#tasks]; }
-  getById(id) { return this.#tasks.find(t => t.id === id); }
-  getOpen() { return this.#tasks.filter(t => !t.completed); }
-
-  delete(id) {
-    const before = this.#tasks.length;
-    this.#tasks = this.#tasks.filter(t => t.id !== id);
-    return this.#tasks.length < before;   // true if something was deleted
-  }
-}
-
-// Step 30 and 32: manual tests
-function check(name, condition) {
-  console.log((condition ? "PASS: " : "FAIL: ") + name);
-}
-
-const repo = new TaskRepository();
-const first = repo.create("Write tests", "high");
-repo.create("Review code");
-check("create adds tasks", repo.getAll().length === 2);
-
-first.complete();
-check("complete works", repo.getById(1).completed === true);
-check("filter open", repo.getOpen().length === 1);
-
-try {
-  repo.create("   ");
-  check("blank title rejected", false);
-} catch (error) {
-  check("blank title rejected", true);
-}
-
-check("unknown id: getById", repo.getById(99) === undefined);
-check("unknown id: delete", repo.delete(99) === false);
-check("delete known id", repo.delete(2) === true && repo.getAll().length === 1);
-
-const emptyRepo = new TaskRepository();
-check("empty repo", emptyRepo.getAll().length === 0 && emptyRepo.getOpen().length === 0);
-
-function getTaskStats(tasks) {
-  const total = tasks.length;
-  const completed = tasks.filter(t => t.completed).length;
-  const open = total - completed;
-  const completionRate = total === 0 ? 0 : Math.round((completed / total) * 100);
-
-  const byPriority = tasks.reduce((counts, t) => {
-    counts[t.priority] = (counts[t.priority] || 0) + 1;
-    return counts;
-  }, {});
-
-  return { total, completed, open, completionRate, byPriority };
-}
-
-const stats = getTaskStats(sampleTasks);
-console.log(stats);
-console.log(stats.total === stats.completed + stats.open);
-console.log(Object.values(stats.byPriority).reduce((a, b) => a + b, 0) === stats.total);
-console.log(getTaskStats([]));
-
-// ===== DAY 3 - Block 1 =====
-
-// Step 34: select elements and check for null
+// --- Elements ---
 const taskList = document.querySelector("#task-list");
 const searchInput = document.querySelector("#search");
+const taskForm = document.querySelector("#task-form");
+const titleInput = document.querySelector("#task-title");
+const titleError = document.querySelector("#title-error");
+const statusEl = document.querySelector("#status");
+const filtersEl = document.querySelector("#filters");
 
-if (!taskList || !searchInput) {
+if (!taskList || !searchInput || !taskForm || !titleInput || !titleError || !statusEl || !filtersEl) {
   throw new Error("Required elements are missing from index.html");
 }
 
-// Sample data (name it uiTasks so it doesn't clash with Day 2's sampleTasks)
-let uiTasks = [
+// --- Constants ---
+const STORAGE_KEY = "jsSprint.tasks.v1";
+const MAX_TITLE_LENGTH = 80;
+const VALID_PRIORITIES = ["high", "medium", "low"];
+const SAMPLE_TASKS = [
   { id: 1, title: "Read brief", completed: false, priority: "high" },
   { id: 2, title: "Draft outline", completed: true, priority: "medium" },
   { id: 3, title: "Write tests", completed: false, priority: "high" },
@@ -450,14 +25,104 @@ let uiTasks = [
   { id: 5, title: "Update README", completed: true, priority: "medium" }
 ];
 
-// Logic Challenge 9: pure case-insensitive search
-function filterByQuery(taskArray, query) {
+// --- State ---
+let uiTasks = SAMPLE_TASKS.map(task => ({ ...task }));
+let currentStatus = "all";
+
+// --- Pure logic ---
+function filterByQuery(tasks, query) {
   const normalized = query.trim().toLowerCase();
-  if (normalized === "") return taskArray;
-  return taskArray.filter(task => task.title.toLowerCase().includes(normalized));
+  if (normalized === "") return tasks;
+  return tasks.filter(task => task.title.toLowerCase().includes(normalized));
 }
 
-// Steps 35-36: build one list item with createElement + textContent
+function getVisibleTasks(tasks, query, status) {
+  const byQuery = filterByQuery(tasks, query);
+  if (status === "open") return byQuery.filter(task => !task.completed);
+  if (status === "completed") return byQuery.filter(task => task.completed);
+  return byQuery;
+}
+
+function toggleTask(tasks, id) {
+  return tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
+}
+
+function deleteTask(tasks, id) {
+  return tasks.filter(task => task.id !== id);
+}
+
+function addTask(tasks, title, priority) {
+  const nextId = tasks.reduce((max, task) => Math.max(max, task.id), 0) + 1;
+  return [...tasks, { id: nextId, title, completed: false, priority }];
+}
+
+function normalizeTitle(title) {
+  return title.trim().toLowerCase();
+}
+
+function validateTaskInput(input, existingTasks) {
+  const errors = {};
+  const title = String(input.title ?? "").trim();
+  const priority = String(input.priority ?? "");
+
+  if (title.length === 0) {
+    errors.title = "Please enter a task title.";
+  } else if (title.length > MAX_TITLE_LENGTH) {
+    errors.title = `Title must be ${MAX_TITLE_LENGTH} characters or fewer.`;
+  } else if (existingTasks.some(t => normalizeTitle(t.title) === normalizeTitle(title))) {
+    errors.title = "A task with this title already exists.";
+  }
+
+  if (!VALID_PRIORITIES.includes(priority)) {
+    errors.priority = "Please choose a valid priority.";
+  }
+
+  const ok = Object.keys(errors).length === 0;
+  return { ok, value: ok ? { title, priority } : null, errors };
+}
+
+// --- Storage ---
+function saveTasks(tasks) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    return true;
+  } catch (error) {
+    console.error("Save failed", error);
+    return false;
+  }
+}
+
+function isValidStoredTask(task) {
+  return task !== null
+    && typeof task === "object"
+    && Number.isInteger(task.id)
+    && typeof task.title === "string" && task.title.trim() !== ""
+    && typeof task.completed === "boolean"
+    && VALID_PRIORITIES.includes(task.priority);
+}
+
+function loadTasks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw === null) return { tasks: null, notice: "" };
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || !parsed.every(isValidStoredTask)) {
+      throw new Error("Stored data has an unexpected shape");
+    }
+    return { tasks: parsed, notice: "" };
+  } catch (error) {
+    console.error("Load failed", error);
+    return { tasks: [], notice: "Saved data could not be read, so the list was reset." };
+  }
+}
+
+function persist() {
+  if (!saveTasks(uiTasks)) {
+    statusEl.textContent = "Could not save. Your changes will be lost on refresh.";
+  }
+}
+
+// --- Rendering ---
 function createTaskItem(task) {
   const li = document.createElement("li");
   li.dataset.taskId = task.id;
@@ -490,7 +155,6 @@ function createTaskItem(task) {
 
 function renderTasks(visibleTasks) {
   taskList.replaceChildren();
-
   if (visibleTasks.length === 0) {
     const empty = document.createElement("li");
     empty.className = "empty-state";
@@ -498,142 +162,11 @@ function renderTasks(visibleTasks) {
     taskList.append(empty);
     return;
   }
-
   visibleTasks.forEach(task => taskList.append(createTaskItem(task)));
 }
 
 function render() {
-  renderTasks(filterByQuery(uiTasks, searchInput.value));
-}
-
-searchInput.addEventListener("input", render);
-render();
-console.log(filterByQuery(uiTasks, "").length);       // 5
-console.log(filterByQuery(uiTasks, "WRITE").length);  // 1
-console.log(filterByQuery(uiTasks, "zzz").length);    // 0
-console.log(uiTasks.length);                          // still 5
-console.log(filterByQuery(uiTasks, "WRITE").length);  // 1
-console.log(filterByQuery(uiTasks, "zzz").length);    // 0
-console.log(uiTasks.length);                          // 5
-
-// ===== DAY 3 - Block 2 =====
-
-var currentStatus = "all";
-
-// Logic Challenge 10: pure, composes search + status. Never changes tasks.
-function getVisibleTasks(tasks, query, status) {
-  const byQuery = filterByQuery(tasks, query);
-  if (status === "open") return byQuery.filter(task => !task.completed);
-  if (status === "completed") return byQuery.filter(task => task.completed);
-  return byQuery;
-}
-
-function render() {
   renderTasks(getVisibleTasks(uiTasks, searchInput.value, currentStatus));
-}
-
-// Pure state updates: each returns a NEW array
-function toggleTask(tasks, id) {
-  return tasks.map(task =>
-    task.id === id ? { ...task, completed: !task.completed } : task
-  );
-}
-
-function deleteTask(tasks, id) {
-  return tasks.filter(task => task.id !== id);
-}
-
-function addTask(tasks, title, priority) {
-  const nextId = tasks.reduce((max, task) => Math.max(max, task.id), 0) + 1;
-  return [...tasks, { id: nextId, title, completed: false, priority }];
-}
-
-// Steps 38-39: ONE click listener on the list (event delegation)
-taskList.addEventListener("click", event => {
-  const control = event.target.closest("[data-action]");
-  if (!control) return;                       // ignore unrelated clicks
-
-  const id = Number(control.dataset.taskId);  // dataset values are strings
-  if (!Number.isInteger(id)) return;
-
-  if (control.dataset.action === "toggle") uiTasks = toggleTask(uiTasks, id);
-  if (control.dataset.action === "delete") uiTasks = deleteTask(uiTasks, id);
-  render();
-});
-
-// Step 37: form submit
-const taskForm = document.querySelector("#task-form");
-const titleInput = document.querySelector("#task-title");
-const statusEl = document.querySelector("#status");
-
-taskForm.addEventListener("submit", event => {
-  event.preventDefault();                     // stop the page reload
-  const data = new FormData(taskForm);
-  const title = String(data.get("title")).trim();
-  const priority = String(data.get("priority"));
-
-  if (title === "") {                         // basic check; full validation is Block 3
-    statusEl.textContent = "Please enter a task title.";
-    titleInput.focus();
-    return;
-  }
-
-  uiTasks = addTask(uiTasks, title, priority);
-  taskForm.reset();
-  titleInput.focus();
-  statusEl.textContent = `Added "${title}".`;
-  render();
-});
-
-// Filter buttons
-document.querySelector("#filters").addEventListener("click", event => {
-  const button = event.target.closest("button[data-filter]");
-  if (!button) return;
-  currentStatus = button.dataset.filter;
-  document.querySelectorAll("#filters button").forEach(b =>
-    b.setAttribute("aria-pressed", String(b === button))
-  );
-  render();
-});
-// Start the app (must stay LAST)
-searchInput.addEventListener("input", render);
-render();
-currentStatus
-const before = JSON.stringify(uiTasks);
-getVisibleTasks(uiTasks, "write", "open");
-console.log(JSON.stringify(uiTasks) === before);
-
-// ===== DAY 3 - Block 3 =====
-
-const MAX_TITLE_LENGTH = 80;
-const VALID_PRIORITIES = ["high", "medium", "low"];
-const titleError = document.querySelector("#title-error");
-
-// Same rule for both sides of the duplicate check
-function normalizeTitle(title) {
-  return title.trim().toLowerCase();
-}
-
-// Step 42: pure. Returns the cleaned value or a set of errors.
-function validateTaskInput(input, existingTasks) {
-  const errors = {};
-  const title = String(input.title ?? "").trim();
-  const priority = String(input.priority ?? "");
-
-  if (title.length === 0) {
-    errors.title = "Please enter a task title.";
-  } else if (title.length > MAX_TITLE_LENGTH) {
-    errors.title = `Title must be ${MAX_TITLE_LENGTH} characters or fewer.`;
-  } else if (existingTasks.some(t => normalizeTitle(t.title) === normalizeTitle(title))) {
-    errors.title = "A task with this title already exists."; // Challenge 11
-  }
-
-  if (!VALID_PRIORITIES.includes(priority)) {
-    errors.priority = "Please choose a valid priority.";
-  }
-
-  const ok = Object.keys(errors).length === 0;
-  return { ok, value: ok ? { title, priority } : null, errors };
 }
 
 function showTitleError(message) {
@@ -646,7 +179,19 @@ function clearTitleError() {
   titleInput.removeAttribute("aria-invalid");
 }
 
-// Steps 41 and 43: submit
+// --- Events ---
+taskList.addEventListener("click", event => {
+  const control = event.target.closest("[data-action]");
+  if (!control) return;
+  const id = Number(control.dataset.taskId);
+  if (!Number.isInteger(id)) return;
+
+  if (control.dataset.action === "toggle") uiTasks = toggleTask(uiTasks, id);
+  if (control.dataset.action === "delete") uiTasks = deleteTask(uiTasks, id);
+  persist();
+  render();
+});
+
 taskForm.addEventListener("submit", event => {
   event.preventDefault();
   const data = new FormData(taskForm);
@@ -658,20 +203,37 @@ taskForm.addEventListener("submit", event => {
   if (!result.ok) {
     statusEl.textContent = "";
     showTitleError(result.errors.title ?? result.errors.priority);
-    titleInput.focus();          // typed value stays in the box
+    titleInput.focus();
     return;
   }
 
   uiTasks = addTask(uiTasks, result.value.title, result.value.priority);
+  const saved = saveTasks(uiTasks);
   clearTitleError();
   taskForm.reset();
   titleInput.focus();
-  statusEl.textContent = `Added "${result.value.title}".`;
+  statusEl.textContent = saved
+    ? `Added "${result.value.title}".`
+    : `Added "${result.value.title}", but it could not be saved.`;
   render();
 });
 
-// Typing again removes the error
 titleInput.addEventListener("input", clearTitleError);
-// Start the app (must stay LAST)
-   searchInput.addEventListener("input", render);
-   render();
+
+filtersEl.addEventListener("click", event => {
+  const button = event.target.closest("button[data-filter]");
+  if (!button) return;
+  currentStatus = button.dataset.filter;
+  filtersEl.querySelectorAll("button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b === button))
+  );
+  render();
+});
+
+searchInput.addEventListener("input", render);
+
+// --- Start the app (keep this LAST) ---
+const stored = loadTasks();
+if (stored.tasks !== null) uiTasks = stored.tasks;
+if (stored.notice) statusEl.textContent = stored.notice;
+render();
