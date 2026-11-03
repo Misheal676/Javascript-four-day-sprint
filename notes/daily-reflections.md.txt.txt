@@ -189,3 +189,20 @@ instead of crashing.
 Sample tasks are only seed data. Later I could add a reset button and clear
 the "Added..." message after a few seconds.
 
+### Logic Challenge 14: normalizeSuggestions
+
+`normalizeSuggestions(data)` is a pure function. It takes anything and returns a clean array of at most five suggestions with the same shape every time: `id`, `title`, `completed`.
+
+**Rules it follows**
+- If the input is not an array (null, a string, an object), it returns `[]`.
+- It keeps only objects with a non-empty string `title` (whitespace-only titles are dropped).
+- It limits the result to five items.
+- It trims titles and fills in missing `id` and `completed` values.
+
+**Why not trust the response?**
+A server can return an error page, a changed format, or missing fields. If the app used the data as is, one bad item could crash the rendering code. Cleaning the data in one place means the rest of the app can rely on a consistent shape.
+
+**What I tested**
+null, a string, an empty array, empty and whitespace titles, wrong types, a valid item, and eight items (only five returned).
+## Step 56
+what i tested: slow network, HTTP 404, malformed data, empty response, and retry, and what the page showed each time.
