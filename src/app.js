@@ -167,6 +167,7 @@ function renderTasks(visibleTasks) {
 
 function render() {
   renderTasks(getVisibleTasks(uiTasks, searchInput.value, currentStatus));
+renderStats(uiTasks);
 }
 
 function showTitleError(message) {
@@ -256,6 +257,19 @@ const suggestionState = {
   items: [],
 };
 let latestRequestId = 0;
+
+function renderStats(allTasks) {
+  const statsEl = document.querySelector("#stats");
+  if (!statsEl) return;
+
+  const total = allTasks.length;
+  const completed = allTasks.filter(task => task.completed).length;
+  const open = total - completed;
+  const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+  statsEl.textContent = `${total} tasks: ${completed} completed, ${open} open (${percent}% done)`;
+}
+
 function renderSuggestions() {
   suggestionsList.replaceChildren();
   loadButton.disabled = suggestionState.status === "loading";
