@@ -64,3 +64,65 @@ The page showed `Cannot use import statement outside a module`, then `Identifier
 
 \- Move the `filters` div, task title input, and error paragraph from below `</html>` into `<main>`.
 
+
+
+\## Day 4, Block 2 (so far): Async state and stale responses
+
+
+
+\### What I built
+
+\- Replaced the scattered page updates in the click handler with one state object, `suggestionState`, that has a `status` of `idle`, `loading`, `success`, or `error`, plus the loaded `items`.
+
+\- Wrote one function, `renderSuggestions`, that draws the Suggestions section from that state. The click handler only changes the state and then calls render.
+
+\- Added a guard at the top of `handleLoadSuggestions` so a second click is ignored while a request is already loading. The button is also disabled while loading.
+
+\- Added a request counter, `latestRequestId`, so an old response cannot overwrite a newer one.
+
+
+
+\### Step 53: Explicit state
+
+Having one `status` value means the page can only be in one state at a time. Before, the button text, status message, and list were changed in different places, so they could get out of sync. Now `renderSuggestions` is the single place that decides what the page shows for each state.
+
+
+
+\### Step 54: No duplicate fetches
+
+If the status is already `loading`, the handler returns immediately. `renderSuggestions` also disables the button during loading and enables it again afterwards, whether the request succeeded or failed.
+
+
+
+\### Step 55: Stale responses
+
+\*\*What is a stale response?\*\*
+
+A stale response is an answer from an older request that arrives after a newer request has started. If it were accepted, it could replace newer, correct data with old data.
+
+
+
+\*\*How does the request counter stop it?\*\*
+
+Each request gets the next number from `++latestRequestId`. After the `await`, the code compares its own `requestId` with `latestRequestId`. If they differ, a newer request exists, so the old response (or old error) is ignored and does not change the page.
+
+
+
+\*\*How I tested it:\*\*
+
+Normal clicks cannot create overlapping requests because of the guard, so I forced two calls from the console by resetting the status to `idle` between them. The page ended in a normal success state with five suggestions and no errors.
+
+
+
+\### Bugs I hit
+
+\- I had to make sure I deleted the whole old `handleLoadSuggestions` function, not only its first lines, and place `suggestionState` and `latestRequestId` above the function that uses them.
+
+
+
+\### Still to do in this block
+
+\- Step 56: test slow network, HTTP failure, malformed data, empty response, and retry.
+
+\- Logic Challenge 14: `normalizeSuggestions`.
+

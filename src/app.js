@@ -261,18 +261,34 @@ async function loadSuggestions() {
 const suggestionsList = document.querySelector("#suggestions-list");
 const suggestionsStatus = document.querySelector("#suggestions-status");
 const loadButton = document.querySelector("#load-suggestions");
-
-async function handleLoadSuggestions() {
-  loadButton.disabled = true;
-  suggestionsStatus.textContent = "Loading suggestions...";
+const suggestionState = {
+  status: "idle",   // "idle" | "loading" | "success" | "error"
+  items: [],
+};
+let latestRequestId = 0;
+function renderSuggestions() {
   suggestionsList.replaceChildren();
+  loadButton.disabled = suggestionState.status === "loading";
 
-  try {
-    const suggestions = await loadSuggestions();
+  if (suggestionState.status === "idle") {
+    suggestionsStatus.textContent = "";
     loadButton.textContent = "Load suggestions";
-    suggestionsStatus.textContent = suggestions.length ? "" : "No suggestions available.";
+  }
 
-    for (const s of suggestions) {
+  if (suggestionState.status === "loading") {
+    suggestionsStatus.textContent = "Loading suggestions...";
+  }
+
+  if (suggestionState.status === "error") {
+    suggestionsStatus.textContent = "Couldn't load suggestions. Check your connection and try again.";
+    loadButton.textContent = "Retry";
+  }
+
+  if (suggestionState.status === "success") {
+    loadButton.textContent = "Load suggestions";
+    suggestionsStatus.textContent = suggestionState.items.length ? "" : "No suggestions available.";
+
+    for (const s of suggestionState.items) {
       const li = document.createElement("li");
       const btn = document.createElement("button");
       btn.type = "button";
@@ -285,14 +301,27 @@ async function handleLoadSuggestions() {
       li.append(btn);
       suggestionsList.append(li);
     }
-
-  } catch (error) {
-    console.error(error);
-    suggestionsStatus.textContent = "Couldn't load suggestions. Check your connection and try again.";
-    loadButton.textContent = "Retry";
-  } finally {
-    loadButton.disabled = false;
   }
 }
+async function handleLoadSuggestions() {
+  if (suggestionState.status === "loading") return;
 
+  const requestId = ++latestRequestId;
+  suggestionState.status = "loading";
+  renderSuggestions();
+
+  try {
+    const items = await loadSuggestions();
+    if (requestId !== latestRequestId) return;
+    suggestionState.items = items;
+    suggestionState.status = "success";
+  } catch (error) {
+    if (requestId !== latestRequestId) return;
+    console.error(error);
+    suggestionState.items = [];
+    suggestionState.status = "error";
+  }
+  renderSuggestions();
+}
 loadButton.addEventListener("click", handleLoadSuggestions);
+renderSuggestions();
