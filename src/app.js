@@ -248,16 +248,6 @@ p.then(() => console.log("3. after 1 second:", p));
 
 console.log("2. this line runs before the promise finishes");
 
-async function loadSuggestions() {
-  const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=5");
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const data = await response.json();
-  return data.map((item) => ({
-    id: item.id,
-    title: item.title,
-    completed: item.completed,
-  }));
-}
 const suggestionsList = document.querySelector("#suggestions-list");
 const suggestionsStatus = document.querySelector("#suggestions-status");
 const loadButton = document.querySelector("#load-suggestions");
