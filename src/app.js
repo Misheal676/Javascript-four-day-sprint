@@ -237,3 +237,62 @@ const stored = loadTasks();
 if (stored.tasks !== null) uiTasks = stored.tasks;
 if (stored.notice) statusEl.textContent = stored.notice;
 render();
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Pending
+const p = wait(1000);
+console.log("1. just created:", p);
+
+// Fulfilled (after 1 second)
+p.then(() => console.log("3. after 1 second:", p));
+
+console.log("2. this line runs before the promise finishes");
+
+async function loadSuggestions() {
+  const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=5");
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  return data.map((item) => ({
+    id: item.id,
+    title: item.title,
+    completed: item.completed,
+  }));
+}
+const suggestionsList = document.querySelector("#suggestions-list");
+const suggestionsStatus = document.querySelector("#suggestions-status");
+const loadButton = document.querySelector("#load-suggestions");
+
+async function handleLoadSuggestions() {
+  loadButton.disabled = true;
+  suggestionsStatus.textContent = "Loading suggestions...";
+  suggestionsList.replaceChildren();
+
+  try {
+    const suggestions = await loadSuggestions();
+    loadButton.textContent = "Load suggestions";
+    suggestionsStatus.textContent = suggestions.length ? "" : "No suggestions available.";
+
+    for (const s of suggestions) {
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = s.title;
+      btn.addEventListener("click", () => {
+        const titleInput = document.querySelector("#task-title");
+        titleInput.value = s.title;
+        titleInput.focus();
+      });
+      li.append(btn);
+      suggestionsList.append(li);
+    }
+
+  } catch (error) {
+    console.error(error);
+    suggestionsStatus.textContent = "Couldn't load suggestions. Check your connection and try again.";
+    loadButton.textContent = "Retry";
+  } finally {
+    loadButton.disabled = false;
+  }
+}
+
+loadButton.addEventListener("click", handleLoadSuggestions);
