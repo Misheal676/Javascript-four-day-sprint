@@ -378,16 +378,6 @@ const stored = loadTasks();
 if (stored.tasks !== null) uiTasks = stored.tasks;
 if (stored.notice) statusEl.textContent = stored.notice;
 render();
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Pending
-const p = wait(1000);
-console.log("1. just created:", p);
-
-// Fulfilled (after 1 second)
-p.then(() => console.log("3. after 1 second:", p));
-
-console.log("2. this line runs before the promise finishes");
 
 const suggestionsList = document.querySelector("#suggestions-list");
 const suggestionsStatus = document.querySelector("#suggestions-status");
