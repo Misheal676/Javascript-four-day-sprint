@@ -51,9 +51,19 @@ function deleteTask(tasks, id) {
   return tasks.filter(task => task.id !== id);
 }
 
-function renameTask(tasks, id, newTitle) {
+ function renameTask(tasks, id, newTitle) {
   return tasks.map(task => (task.id === id ? { ...task, title: newTitle } : task));
 }
+
+let lastDeleted = null;   // { task, index } or null
+
+function restoreTask(tasks, deleted) {
+  const copy = [...tasks];
+  const position = Math.min(deleted.index, copy.length);
+  copy.splice(position, 0, deleted.task);
+  return copy;
+}
+
 
 function addTask(tasks, title, priority) {
   const nextId = tasks.reduce((max, task) => Math.max(max, task.id), 0) + 1;
@@ -198,7 +208,14 @@ taskList.addEventListener("click", event => {
   if (!Number.isInteger(id)) return;
 
   if (control.dataset.action === "toggle") uiTasks = toggleTask(uiTasks, id);
-  if (control.dataset.action === "delete") uiTasks = deleteTask(uiTasks, id);
+
+  if (control.dataset.action === "delete") {
+    const index = uiTasks.findIndex(task => task.id === id);
+    if (index !== -1) {
+      lastDeleted = { task: uiTasks[index], index };
+      uiTasks = deleteTask(uiTasks, id);
+    }
+  }
 
   if (control.dataset.action === "edit") {
     const current = uiTasks.find(task => task.id === id);
