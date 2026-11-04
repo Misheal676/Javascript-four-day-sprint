@@ -188,6 +188,7 @@ function renderTasks(visibleTasks) {
 function render() {
   renderTasks(getVisibleTasks(uiTasks, searchInput.value, currentStatus));
 renderStats(uiTasks);
+  renderUndo();
 }
 
 function showTitleError(message) {
@@ -239,6 +240,21 @@ taskList.addEventListener("click", event => {
     uiTasks = renameTask(uiTasks, id, newTitle);
   }
 
+  persist();
+  render();
+});
+
+const undoButton = document.querySelector("#undo-delete");
+
+function renderUndo() {
+  undoButton.hidden = lastDeleted === null;
+  if (lastDeleted) undoButton.textContent = `Undo delete: ${lastDeleted.task.title}`;
+}
+
+undoButton.addEventListener("click", () => {
+  if (!lastDeleted) return;
+  uiTasks = restoreTask(uiTasks, lastDeleted);
+  lastDeleted = null;
   persist();
   render();
 });
