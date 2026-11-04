@@ -51,6 +51,10 @@ function deleteTask(tasks, id) {
   return tasks.filter(task => task.id !== id);
 }
 
+function renameTask(tasks, id, newTitle) {
+  return tasks.map(task => (task.id === id ? { ...task, title: newTitle } : task));
+}
+
 function addTask(tasks, title, priority) {
   const nextId = tasks.reduce((max, task) => Math.max(max, task.id), 0) + 1;
   return [...tasks, { id: nextId, title, completed: false, priority }];
@@ -143,13 +147,19 @@ function createTaskItem(task) {
   badge.className = `priority priority-${task.priority}`;
   badge.textContent = task.priority;
 
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  editBtn.dataset.action = "edit";
+  editBtn.dataset.taskId = task.id;
+  editBtn.textContent = "Edit";
+
   const deleteBtn = document.createElement("button");
   deleteBtn.type = "button";
   deleteBtn.dataset.action = "delete";
   deleteBtn.dataset.taskId = task.id;
   deleteBtn.textContent = "Delete";
 
-  li.append(checkbox, label, badge, deleteBtn);
+  li.append(checkbox, label, badge, editBtn, deleteBtn);
   return li;
 }
 
@@ -189,6 +199,29 @@ taskList.addEventListener("click", event => {
 
   if (control.dataset.action === "toggle") uiTasks = toggleTask(uiTasks, id);
   if (control.dataset.action === "delete") uiTasks = deleteTask(uiTasks, id);
+
+  if (control.dataset.action === "edit") {
+    const current = uiTasks.find(task => task.id === id);
+    if (!current) return;
+
+    const input = prompt("Rename task:", current.title);
+    if (input === null) return;
+
+    const newTitle = input.trim();
+    if (newTitle.length < 1 || newTitle.length > 80) {
+      alert("Title must be 1 to 80 characters.");
+      return;
+    }
+    const duplicate = uiTasks.some(
+      task => task.id !== id && task.title.trim().toLowerCase() === newTitle.toLowerCase()
+    );
+    if (duplicate) {
+      alert("Another task already has that title.");
+      return;
+    }
+    uiTasks = renameTask(uiTasks, id, newTitle);
+  }
+
   persist();
   render();
 });
