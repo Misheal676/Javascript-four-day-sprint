@@ -124,5 +124,49 @@ Normal clicks cannot create overlapping requests because of the guard, so I forc
 
 \- Step 56: test slow network, HTTP failure, malformed data, empty response, and retry.
 
-\- Logic Challenge 14: `normalizeSuggestions`.
+### Logic Challenge 14: normalizeSuggestions
+
+`normalizeSuggestions(data)` is a pure function. It takes anything and returns a clean array of at most five suggestions with the same shape every time: `id`, `title`, `completed`.
+
+**Rules it follows**
+- If the input is not an array (null, a string, an object), it returns `[]`.
+- It keeps only objects with a non-empty string `title` (whitespace-only titles are dropped).
+- It limits the result to five items.
+- It trims titles and fills in missing `id` and `completed` values.
+
+**Why not trust the response?**
+A server can return an error page, a changed format, or missing fields. If the app used the data as is, one bad item could crash the rendering code. Cleaning the data in one place means the rest of the app can rely on a consistent shape.
+
+**What I tested**
+null, a string, an empty array, empty and whitespace titles, wrong types, a valid item, and eight items (only five returned).
+
+### Logic Challenge 15: Undo delete
+
+**How it works**
+Before a task is deleted, the click handler saves `{ task, index }` in the variable `lastDeleted`. `restoreTask(tasks, deleted)` returns a new array with the task inserted back at its old index (capped at the list length, in case the list got shorter). The Undo button is shown only when `lastDeleted` is not null.
+
+**State transitions**
+- No undo available: `lastDeleted` is `null`, button hidden.
+- Delete a task: `lastDeleted` is set, button shown.
+- Delete another task: `lastDeleted` is overwritten, so only the newest delete can be undone.
+- Click Undo: task restored, `lastDeleted` set back to `null`, button hidden.
+- Reload: memory is cleared, so undo is no longer available.
+
+**Tests**
+Delete then undo (position and data kept), two deletes in a row (only the second is undoable), and reload (undo gone).
+
+### Logic Challenge 16: JSON export and import
+
+**Export**
+`exportTasks` turns the tasks array into text with `JSON.stringify`, wraps it in a Blob, and downloads it through a temporary link. The status line reports how many tasks were exported.
+
+**Import**
+Choosing a file reads its text, parses it with `JSON.parse`, and passes it to `validateImportedTasks`. The validator checks that the data is a non-empty array, and that each task has a unique integer id, a title of 1 to 80 characters, a boolean `completed`, and a priority of low, medium, or high. Only after validation passes and the user confirms is `uiTasks` replaced, then saved and re-rendered. Any failure leaves the current tasks untouched.
+
+**Tests**
+- Valid exported file: confirm box, tasks replaced, "Imported 5 tasks."
+- Cancel on the confirm box: nothing changed.
+- Malformed file (`not json`): "not valid JSON" message, tasks unchanged.
+- Empty file (`[]`): "File has no tasks."
+- Structurally invalid file (`[{"title": 5}]`): "invalid id" message.
 

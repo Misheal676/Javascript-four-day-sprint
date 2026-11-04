@@ -259,6 +259,80 @@ undoButton.addEventListener("click", () => {
   render();
 });
 
+const exportButton = document.querySelector("#export-tasks");
+const importFile = document.querySelector("#import-file");
+const dataStatus = document.querySelector("#data-status");
+
+function exportTasks() {
+  const json = JSON.stringify(uiTasks, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "focus-board-tasks.json";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  dataStatus.textContent = `Exported ${uiTasks.length} tasks.`;
+}
+
+exportButton.addEventListener("click", exportTasks);
+
+function validateImportedTasks(data) {
+  if (!Array.isArray(data)) return { ok: false, error: "File must contain a list of tasks." };
+  if (data.length === 0) return { ok: false, error: "File has no tasks." };
+
+  const ids = new Set();
+  const cleaned = [];
+  for (const item of data) {
+    if (item === null || typeof item !== "object") return { ok: false, error: "A task is not an object." };
+    if (!Number.isInteger(item.id)) return { ok: false, error: "A task has an invalid id." };
+    if (ids.has(item.id)) return { ok: false, error: "Two tasks share the same id." };
+    if (typeof item.title !== "string" || item.title.trim() === "" || item.title.trim().length > 80) {
+      return { ok: false, error: "A task has an invalid title." };
+    }
+    if (typeof item.completed !== "boolean") return { ok: false, error: "A task has an invalid completed value." };
+    if (!["low", "medium", "high"].includes(item.priority)) {
+      return { ok: false, error: "A task has an invalid priority." };
+    }
+    ids.add(item.id);
+    cleaned.push({ id: item.id, title: item.title.trim(), completed: item.completed, priority: item.priority });
+  }
+  return { ok: true, tasks: cleaned };
+}
+
+importFile.addEventListener("change", async () => {
+  const file = importFile.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const result = validateImportedTasks(JSON.parse(text));
+
+    if (!result.ok) {
+      dataStatus.textContent = `Import failed: ${result.error} Your tasks were not changed.`;
+      return;
+    }
+    if (!confirm(`Replace your ${uiTasks.length} tasks with ${result.tasks.length} imported tasks?`)) {
+      dataStatus.textContent = "Import cancelled. Your tasks were not changed.";
+      return;
+    }
+    uiTasks = result.tasks;
+    lastDeleted = null;
+    persist();
+    render();
+    dataStatus.textContent = `Imported ${result.tasks.length} tasks.`;
+  } catch (error) {
+    console.error(error);
+    dataStatus.textContent = "Import failed: the file is not valid JSON. Your tasks were not changed.";
+  } finally {
+    importFile.value = "";
+  }
+});
+
 taskForm.addEventListener("submit", event => {
   event.preventDefault();
   const data = new FormData(taskForm);
